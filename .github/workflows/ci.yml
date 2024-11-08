@@ -1,22 +1,45 @@
-name: Molecule Test
-
-on: [push, pull_request]
+---
+name: CI
+on:
+  pull_request:
 
 jobs:
-  test:
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install test dependencies
+        run: pip3 install ansible-lint
+
+      - name: Lint
+        run: ansible-lint .
+
+  molecule:
+    name: Molecule
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python 3
+        uses: actions/setup-python@v5
         with:
           python-version: '3.x'
 
       - name: Install test dependencies
         run: pip3 install ansible molecule molecule-plugins[docker] docker
 
-      - name: Run Molecule tests.
+      - name: Run Molecule tests
         run: molecule test
         env:
           PY_COLORS: '1'
