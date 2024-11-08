@@ -1,0 +1,31 @@
+# netobserv/meta/main.yml
+---
+galaxy_info:
+  author: ElastiFlow
+  namespace: elastiflow
+  role_name: netobserv
+  description: Install and configure the netObserv Flow Collector on linux systems.
+  company: ElastiFlow
+  license: MIT
+  min_ansible_version: "2.9"
+
+  platforms:
+    - name: Debian
+      versions:
+        - bullseye
+        - bookworm
+    - name: Ubuntu
+      versions:
+        - "20.04"
+        - "22.04"
+        - "24.04"
+    - name: RedHat
+      versions:
+        - "8"
+    - name: AlmaLinux
+      versions:
+        - "8"
+    - name: Rocky
+      versions:
+        - "8"
+dependencies: []

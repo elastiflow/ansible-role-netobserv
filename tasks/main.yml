@@ -1,0 +1,13 @@
+# netobserv/tasks/main.yml
+---
+
+- name: Include tasks for {{ ansible_os_family }}
+  ansible.builtin.include_tasks: "{{ ansible_os_family | lower }}.yml"
+
+- name: Ensure configuration directory exists
+  ansible.builtin.file:
+    path: "/etc/elastiflow"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
