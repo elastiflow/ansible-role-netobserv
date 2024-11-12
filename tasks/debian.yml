@@ -65,8 +65,10 @@
     netobserv_checksum_value: "{{ checksum_file_content.content | b64decode | regex_replace('\\s.*', '') }}"
   when: not ansible_check_mode
 
-- name: Calculate and verify SHA-256 checksum
-  ansible.builtin.command: "sha256sum /tmp/{{ netobserv_package_deb }}"
+- name: Calculate SHA-256 checksum
+  ansible.builtin.stat:
+    path: "/tmp/{{ netobserv_package_deb }}"
+    checksum_algorithm: sha256
   register: checksum
   changed_when: false
   when: not ansible_check_mode
@@ -74,7 +76,7 @@
 - name: Fail if checksum does not match
   ansible.builtin.assert:
     that:
-      - "checksum.stdout.split()[0] == netobserv_checksum_value"
+      - "checksum_stat.stat.checksum == netobserv_checksum_value"
   when: not ansible_check_mode
 
 - name: Download GPG signature for .deb package
