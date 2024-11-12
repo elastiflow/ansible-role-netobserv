@@ -25,21 +25,39 @@
   when:
     - ansible_distribution_major_version == "9"
 
-- name: Import ElastiFlow GPG key
+- name: Check if ElastiFlow GPG key is already present
+  ansible.builtin.stat:
+    path: /etc/pki/rpm-gpg/RPM-GPG-KEY-elastiflow
+  register: elastiflow_key
+
+- name: Allow sha1 crypto policies for ElastiFlow GPG key
+  ansible.builtin.command: update-crypto-policies --set DEFAULT:SHA1
+  changed_when: false
+  when:
+    - ansible_distribution_major_version == "9"
+    - not elastiflow_key.stat.exists
+
+- name: Download ElastiFlow GPG key
   ansible.builtin.get_url:
     url: "https://elastiflow-releases.s3.us-east-2.amazonaws.com/elastiflow.pgp"
     dest: /etc/pki/rpm-gpg/RPM-GPG-KEY-elastiflow
     mode: '0644'
+  when:
+    - not elastiflow_key.stat.exists
 
 - name: Import ElastiFlow GPG public key into keychain
   ansible.builtin.command:
     cmd: "gpg --import /etc/pki/rpm-gpg/RPM-GPG-KEY-elastiflow"
   changed_when: false
+  when:
+    - not elastiflow_key.stat.exists
 
-- name: Import ElastiFlow GPG key
+- name: Import ElastiFlow GPG public key into rpm keychain
   ansible.builtin.rpm_key:
     state: present
-    key: "https://elastiflow-releases.s3.us-east-2.amazonaws.com/elastiflow.pgp"
+    key: "/etc/pki/rpm-gpg/RPM-GPG-KEY-elastiflow"
+  when:
+    - not elastiflow_key.stat.exists
 
 - name: Download checksum file for .rpm package
   ansible.builtin.get_url:
