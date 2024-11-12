@@ -1,0 +1,11 @@
+---
+galaxy_info:
+  author: ElastiFlow
+  namespace: elastiflow
+  role_name: netobserv
+  description: Install and configure the netObserv Flow Collector on linux systems.
+  company: ElastiFlow
+  license: Apache-2.0
+  min_ansible_version: "2.9"
+
+dependencies: []

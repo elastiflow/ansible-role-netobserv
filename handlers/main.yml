@@ -1,0 +1,7 @@
+---
+- name: Restart netobserv
+  ansible.builtin.service:
+    name: flowcoll
+    state: restarted
+    enabled: true
+  when: molecule_yml is not defined

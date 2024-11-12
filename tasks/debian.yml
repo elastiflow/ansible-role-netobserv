@@ -1,0 +1,98 @@
+---
+- name: Ensure system packages are up to date
+  ansible.builtin.apt:
+    update_cache: true
+  when: not ansible_check_mode
+
+- name: Install dependencies
+  ansible.builtin.apt:
+    name:
+      - gnupg
+      - libpcap-dev
+      - ca-certificates
+    state: present
+    update_cache: true
+
+- name: Import ElastiFlow GPG key
+  ansible.builtin.get_url:
+    url: "https://elastiflow-releases.s3.us-east-2.amazonaws.com/elastiflow.pgp"
+    dest: /etc/apt/trusted.gpg.d/elastiflow.gpg
+    mode: '0644'
+
+- name: Import ElastiFlow GPG public key into keychain
+  ansible.builtin.command:
+    cmd: "gpg --import /etc/apt/trusted.gpg.d/elastiflow.gpg"
+  changed_when: false
+
+- name: Download ElastiFlow GPG public key
+  ansible.builtin.get_url:
+    url: "https://elastiflow-releases.s3.us-east-2.amazonaws.com/elastiflow.pgp"
+    dest: "/tmp/elastiflow.pgp"
+    mode: '0644'
+
+- name: Trust ElastiFlow GPG key
+  ansible.builtin.shell: |
+    set -o pipefail
+    echo "6A2E26EFDE24AA7A634A442ED5C0572E5D212F6B:6:" | gpg --import-ownertrust
+  args:
+    executable: /bin/bash
+  when: not ansible_check_mode
+  changed_when: false
+
+- name: Download checksum file for .deb package
+  ansible.builtin.get_url:
+    url: "https://elastiflow-releases.s3.us-east-2.amazonaws.com/flow-collector/{{ netobserv_package_deb }}.sha256"
+    dest: "/tmp/{{ netobserv_package_deb }}.sha256"
+    mode: '0644'
+  when: not ansible_check_mode
+
+- name: Download NetObserv Flow .deb package
+  ansible.builtin.get_url:
+    url: "https://elastiflow-releases.s3.us-east-2.amazonaws.com/flow-collector/{{ netobserv_package_deb }}"
+    dest: "/tmp/{{ netobserv_package_deb }}"
+    mode: '0644'
+  when: not ansible_check_mode
+
+- name: Read checksum from file
+  ansible.builtin.slurp:
+    src: "/tmp/{{ netobserv_package_deb }}.sha256"
+  register: checksum_file_content
+  when: not ansible_check_mode
+
+- name: Set checksum fact
+  ansible.builtin.set_fact:
+    netobserv_checksum_value: "{{ checksum_file_content.content | b64decode | regex_replace('\\s.*', '') }}"
+  when: not ansible_check_mode
+
+- name: Calculate SHA-256 checksum
+  ansible.builtin.stat:
+    path: "/tmp/{{ netobserv_package_deb }}"
+    checksum_algorithm: sha256
+  register: checksum
+  changed_when: false
+  when: not ansible_check_mode
+
+- name: Fail if checksum does not match
+  ansible.builtin.assert:
+    that:
+      - "checksum.stat.checksum == netobserv_checksum_value"
+  when: not ansible_check_mode
+
+- name: Download GPG signature for .deb package
+  ansible.builtin.get_url:
+    url: "https://elastiflow-releases.s3.us-east-2.amazonaws.com/flow-collector/{{ netobserv_package_deb }}.sig"
+    dest: "/tmp/{{ netobserv_package_deb }}.sig"
+    mode: '0644'
+  when: not ansible_check_mode
+
+- name: Verify GPG signature for .deb package
+  ansible.builtin.command: gpg --verify "/tmp/{{ netobserv_package_deb }}.sig" "/tmp/{{ netobserv_package_deb }}"
+  register: verify_deb_gpg
+  when: not ansible_check_mode
+  changed_when: false
+
+- name: Install NetObserv Flow .deb package
+  ansible.builtin.apt:
+    deb: "/tmp/{{ netobserv_package_deb }}"
+    state: present
+  when: not ansible_check_mode

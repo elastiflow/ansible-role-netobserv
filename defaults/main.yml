@@ -1,0 +1,10 @@
+---
+
+# Default version of NetObserv Flow Collector
+netobserv_version: "7.5.0"
+
+# Package name for Debian-based distributions
+netobserv_package_deb: "flow-collector_{{ netobserv_version }}_linux_amd64.deb"
+
+# Package name for RHEL-based distributions
+netobserv_package_rpm: "flow-collector-{{ netobserv_version }}-1.x86_64.rpm"

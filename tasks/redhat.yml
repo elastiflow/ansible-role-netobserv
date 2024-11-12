@@ -1,0 +1,117 @@
+---
+
+- name: Install required packages with powertools repository
+  ansible.builtin.dnf:
+    name:
+      - gnupg
+      - libpcap
+      - libpcap-devel
+      - ca-certificates
+    state: present
+    enablerepo: powertools
+  when:
+    - ansible_distribution_major_version == "8"
+
+- name: Install required packages with crb repository
+  ansible.builtin.dnf:
+    name:
+      - gnupg
+      - libpcap
+      - libpcap-devel
+      - ca-certificates
+    state: present
+    enablerepo: crb
+  when:
+    - ansible_distribution_major_version == "9"
+
+- name: Check if ElastiFlow GPG key is already present
+  ansible.builtin.stat:
+    path: /etc/pki/rpm-gpg/RPM-GPG-KEY-elastiflow
+  register: elastiflow_key
+
+- name: Allow sha1 crypto policies for ElastiFlow GPG key
+  ansible.builtin.command: update-crypto-policies --set DEFAULT:SHA1
+  changed_when: false
+  when:
+    - ansible_distribution_major_version == "9"
+    - not elastiflow_key.stat.exists
+
+- name: Download ElastiFlow GPG key
+  ansible.builtin.get_url:
+    url: "https://elastiflow-releases.s3.us-east-2.amazonaws.com/elastiflow.pgp"
+    dest: /etc/pki/rpm-gpg/RPM-GPG-KEY-elastiflow
+    mode: '0644'
+  when:
+    - not elastiflow_key.stat.exists
+
+- name: Import ElastiFlow GPG public key into keychain
+  ansible.builtin.command:
+    cmd: "gpg --import /etc/pki/rpm-gpg/RPM-GPG-KEY-elastiflow"
+  changed_when: false
+  when:
+    - not elastiflow_key.stat.exists
+
+- name: Import ElastiFlow GPG public key into rpm keychain
+  ansible.builtin.rpm_key:
+    state: present
+    key: "/etc/pki/rpm-gpg/RPM-GPG-KEY-elastiflow"
+  when:
+    - not elastiflow_key.stat.exists
+
+- name: Download checksum file for .rpm package
+  ansible.builtin.get_url:
+    url: "https://elastiflow-releases.s3.us-east-2.amazonaws.com/flow-collector/{{ netobserv_package_rpm }}.sha256"
+    dest: "/tmp/{{ netobserv_package_rpm }}.sha256"
+    mode: '0644'
+  when: not ansible_check_mode
+
+- name: Download NetObserv Flow .rpm package
+  ansible.builtin.get_url:
+    url: "https://elastiflow-releases.s3.us-east-2.amazonaws.com/flow-collector/{{ netobserv_package_rpm }}"
+    dest: "/tmp/{{ netobserv_package_rpm }}"
+    mode: '0644'
+  when: not ansible_check_mode
+
+- name: Read checksum from file
+  ansible.builtin.slurp:
+    src: "/tmp/{{ netobserv_package_rpm }}.sha256"
+  register: checksum_file_content
+  when: not ansible_check_mode
+
+- name: Set checksum fact
+  ansible.builtin.set_fact:
+    netobserv_checksum_value: "{{ checksum_file_content.content | b64decode | regex_replace('\\s.*', '') }}"
+  when: not ansible_check_mode
+
+- name: Calculate SHA-256 checksum
+  ansible.builtin.stat:
+    path: "/tmp/{{ netobserv_package_rpm }}"
+    checksum_algorithm: sha256
+  register: checksum
+  changed_when: false
+  when: not ansible_check_mode
+
+- name: Fail if checksum does not match
+  ansible.builtin.assert:
+    that:
+      - "checksum.stat.checksum == netobserv_checksum_value"
+  when: not ansible_check_mode
+
+- name: Download GPG signature for .rpm package
+  ansible.builtin.get_url:
+    url: "https://elastiflow-releases.s3.us-east-2.amazonaws.com/flow-collector/{{ netobserv_package_rpm }}.sig"
+    dest: "/tmp/{{ netobserv_package_rpm }}.sig"
+    mode: '0644'
+  when: not ansible_check_mode
+
+- name: Verify GPG signature for .rpm package
+  ansible.builtin.command: gpg --verify "/tmp/{{ netobserv_package_rpm }}.sig" "/tmp/{{ netobserv_package_rpm }}"
+  register: verify_rpm_gpg
+  when: not ansible_check_mode
+  changed_when: false
+
+- name: Install NetObserv Flow .rpm package
+  ansible.builtin.dnf:
+    name: "/tmp/{{ netobserv_package_rpm }}"
+    state: present
+  when: not ansible_check_mode
