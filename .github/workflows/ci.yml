@@ -34,6 +34,11 @@ jobs:
         with:
           python-version: '3.x'
 
+      - name: Forcefully clean up Docker environment
+        run: |
+          docker ps -aq | xargs -r docker rm -f
+          docker images -q | xargs -r docker rmi -f
+
       - name: Install test dependencies
         run: pip3 install ansible molecule molecule-plugins[docker] docker
 
