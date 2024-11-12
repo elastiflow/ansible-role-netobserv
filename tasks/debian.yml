@@ -76,7 +76,7 @@
 - name: Fail if checksum does not match
   ansible.builtin.assert:
     that:
-      - "checksum_stat.stat.checksum == netobserv_checksum_value"
+      - "checksum.stat.checksum == netobserv_checksum_value"
   when: not ansible_check_mode
 
 - name: Download GPG signature for .deb package
