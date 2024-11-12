@@ -50,3 +50,5 @@ jobs:
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
+          DOCKER_HOST: tcp://localhost:2375
+          DOCKER_TLS_CERTDIR: ""
