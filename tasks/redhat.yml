@@ -1,4 +1,3 @@
-# netobserv/tasks/redhat.yml
 ---
 
 - name: Install required packages with powertools repository

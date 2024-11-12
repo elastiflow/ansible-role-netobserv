@@ -1,4 +1,3 @@
-# netobserv/tasks/main.yml
 ---
 
 - name: Include tasks for {{ ansible_os_family }}

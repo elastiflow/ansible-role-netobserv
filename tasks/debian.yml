@@ -1,4 +1,3 @@
-# netobserv/tasks/debian.yml
 ---
 - name: Ensure system packages are up to date
   ansible.builtin.apt:
@@ -34,7 +33,7 @@
 - name: Trust ElastiFlow GPG key
   ansible.builtin.shell: |
     set -o pipefail
-    echo "{{ netobserv_trust_string }}" | gpg --import-ownertrust
+    echo "6A2E26EFDE24AA7A634A442ED5C0572E5D212F6B:6:" | gpg --import-ownertrust
   args:
     executable: /bin/bash
   when: not ansible_check_mode
