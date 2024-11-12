@@ -55,4 +55,4 @@ Here’s how to use the `elastiflow.netobserv` role in your playbook:
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the [Apache 2.0 License](./LICENSE).
