@@ -6,24 +6,20 @@ driver:
 platforms:
   - name: ubuntu
     platform: linux/amd64
-    image: geerlingguy/docker-ubuntu2404-ansible
+    image: ubuntu:24.04
     pre_build_image: true
-    command: ${MOLECULE_DOCKER_COMMAND:-""}
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
     cgroupns_mode: host
     privileged: true
   - name: rocky
     platform: linux/amd64
-    image: geerlingguy/docker-rockylinux8-ansible
+    image: rockylinux:8
     pre_build_image: true
-    command: ${MOLECULE_DOCKER_COMMAND:-""}
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
     cgroupns_mode: host
     privileged: true
-    environment:
-      ANSIBLE_PYTHON_INTERPRETER: /usr/bin/python3
 provisioner:
   name: ansible
   config_options:
