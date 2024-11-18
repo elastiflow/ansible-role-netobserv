@@ -13,7 +13,7 @@ This ansible role installs and configures the NetObserv Flow Collector on Debian
 
 | Variable                 | Default Value                                              | Description                                         |
 |:-------------------------|:-----------------------------------------------------------|:----------------------------------------------------|
-| `netobserv_version`      | `"7.5.0"`                                                  | The default version of the NetObserv Flow Collector |
+| `netobserv_version`      | `"7.5.1"`                                                  | The default version of the NetObserv Flow Collector |
 | `netobserv_package_deb`  | `"flow-collector_{{ netobserv_version }}_linux_amd64.deb"` | The Debian package filename for NetObserv           |
 | `netobserv_package_rpm`  | `"flow-collector-{{ netobserv_version }}-1.x86_64.rpm"`    | The RPM package filename for NetObserv              |
 
@@ -31,7 +31,7 @@ Here’s how to use the `elastiflow.netobserv` role in your playbook:
     - elastiflow.netobserv
 
   vars:
-    netobserv_version: "7.5.0"  # Optional: Override default version
+    netobserv_version: "7.5.1"  # Optional: Override default version
 ```
 
 ## Usage Instructions
