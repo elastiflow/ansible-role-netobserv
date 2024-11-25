@@ -1,6 +1,6 @@
 # NetObserv Flow Collector Ansible Role
 
-This ansible role installs and configures the NetObserv Flow Collector on Debian-based (Debian, Ubuntu) and RHEL-based (RHEL, AlmaLinux) Linux distributions. The role handles package installation, dependency management, GPG verification, configuration deployment, and service management.
+This ansible role is a community role designed to install and configure the NetObserv Flow Collector on Debian-based (Debian, Ubuntu) and RHEL-based (RHEL, AlmaLinux) Linux distributions. This role handles package installation, dependency management, and GPG verification.
 
 ## Requirements
 
@@ -13,7 +13,7 @@ This ansible role installs and configures the NetObserv Flow Collector on Debian
 
 | Variable                 | Default Value                                              | Description                                         |
 |:-------------------------|:-----------------------------------------------------------|:----------------------------------------------------|
-| `netobserv_version`      | `"7.5.1"`                                                  | The default version of the NetObserv Flow Collector |
+| `netobserv_version`      | `"7.5.2"`                                                  | The default version of the NetObserv Flow Collector |
 | `netobserv_package_deb`  | `"flow-collector_{{ netobserv_version }}_linux_amd64.deb"` | The Debian package filename for NetObserv           |
 | `netobserv_package_rpm`  | `"flow-collector-{{ netobserv_version }}-1.x86_64.rpm"`    | The RPM package filename for NetObserv              |
 
@@ -29,9 +29,8 @@ Here’s how to use the `elastiflow.netobserv` role in your playbook:
   become: true
   roles:
     - elastiflow.netobserv
-
   vars:
-    netobserv_version: "7.5.1"  # Optional: Override default version
+    netobserv_version: "7.5.2"  # Optional: Override default version
 ```
 
 ## Usage Instructions
