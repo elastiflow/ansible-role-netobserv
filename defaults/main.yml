@@ -1,7 +1,7 @@
 ---
 
 # Default version of NetObserv Flow Collector
-netobserv_version: "7.11.1"
+netobserv_version: "7.12.0"
 
 # Package name for Debian-based distributions
 netobserv_package_deb: "flow-collector_{{ netobserv_version }}_linux_amd64.deb"
